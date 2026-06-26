@@ -1,1 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
 
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>AI Chat</title>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+<style>
+
+.chat-container{
+width:90%;
+max-width:900px;
+margin:40px auto;
+background:#1e293b;
+padding:30px;
+border-radius:15px;
+box-shadow:0 0 20px rgba(0,0,0,.5);
+}
+
+.chat-box{
+height:400px;
+overflow-y:auto;
+background:#0f172a;
+padding:20px;
+border-radius:10px;
+margin-bottom:20px;
+}
+
+.message{
+padding:12px;
+margin:10px 0;
+border-radius:10px;
+}
+
+.user{
+background:#2563eb;
+text-align:right;
+}
+
+.bot{
+background:#334155;
+}
+
+.input-area{
+display:flex;
+gap:10px;
+}
+
+.input-area input{
+flex:1;
+padding:15px;
+border:none;
+border-radius:10px;
+font-size:16px;
+}
+
+.input-area button{
+padding:15px 25px;
+background:#2563eb;
+color:white;
+border:none;
+border-radius:10px;
+cursor:pointer;
+}
+
+.input-area button:hover{
+background:#1d4ed8;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<nav>
+
+<div class="logo">🤖 AI Agent Studio</div>
+
+<ul>
+<li><a href="/">Home</a></li>
+<li><a href="/dashboard">Dashboard</a></li>
+<li><a href="/about">About</a></li>
+<li><a href="/contact">Contact</a></li>
+</ul>
+
+</nav>
+
+<div class="chat-container">
+
+<h1 align="center">🤖 AI Chat Assistant</h1>
+
+<div class="chat-box" id="chatBox">
+
+<div class="message bot">
+👋 Hello! I am AI Agent Studio. Ask me anything.
+</div>
+
+</div>
+
+<div class="input-area">
+
+<input
+type="text"
+id="msg"
+placeholder="Type your message...">
+
+<button onclick="sendMessage()">
+Send
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+function sendMessage(){
+
+let input=document.getElementById("msg");
+
+let text=input.value.trim();
+
+if(text=="") return;
+
+let box=document.getElementById("chatBox");
+
+box.innerHTML+=`
+<div class="message user">
+${text}
+</div>`;
+
+setTimeout(function(){
+
+box.innerHTML+=`
+<div class="message bot">
+🤖 You said: ${text}
+</div>`;
+
+box.scrollTop=box.scrollHeight;
+
+},700);
+
+input.value="";
+
+}
+
+</script>
+
+</body>
+
+</html>
