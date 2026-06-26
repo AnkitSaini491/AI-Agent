@@ -1,1 +1,11 @@
 
+console.log("AI Agent Studio Loaded");
+
+document.querySelectorAll(".card").forEach(card=>{
+card.addEventListener("mouseenter",()=>{
+card.style.transform="scale(1.05)";
+});
+card.addEventListener("mouseleave",()=>{
+card.style.transform="scale(1)";
+});
+});
