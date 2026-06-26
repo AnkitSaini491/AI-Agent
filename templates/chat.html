@@ -304,3 +304,89 @@ setInterval(function(){
 },500);
 
 </script>
+  <div style="padding:15px;background:#111827;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;">
+
+<button onclick="clearChat()">
+🗑 Clear Chat
+</button>
+
+<button onclick="copyLastResponse()">
+📋 Copy Last Reply
+</button>
+
+<button onclick="startVoice()">
+🎤 Voice
+</button>
+
+</div>
+
+<script>
+
+function clearChat(){
+
+chatBox.innerHTML=`
+
+<div class="message bot">
+
+👋 Hello! I am your AI Assistant.
+How can I help you today?
+
+</div>
+
+<div class="typing" id="typing">
+
+AI is typing...
+
+</div>
+
+`;
+
+}
+
+function copyLastResponse(){
+
+let bots=document.querySelectorAll(".bot");
+
+if(bots.length>0){
+
+let text=bots[bots.length-1].innerText;
+
+navigator.clipboard.writeText(text);
+
+alert("AI reply copied!");
+
+}
+
+}
+
+function startVoice(){
+
+if(!('webkitSpeechRecognition' in window)){
+
+alert("Voice recognition is not supported in this browser.");
+
+return;
+
+}
+
+let recognition=new webkitSpeechRecognition();
+
+recognition.lang="en-US";
+
+recognition.start();
+
+recognition.onresult=function(event){
+
+document.getElementById("message").value=
+event.results[0][0].transcript;
+
+sendMessage();
+
+};
+
+}
+
+</script>
+
+</body>
+</html>
