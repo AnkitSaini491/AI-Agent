@@ -1,293 +1,233 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
 <title>AI Agent Studio</title>
 
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link rel="stylesheet"
+href="{{ url_for('static',filename='style.css') }}">
 
-<style>
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
-}
-
-body{
-background:#0f172a;
-color:white;
-display:flex;
-height:100vh;
-overflow:hidden;
-}
-
-.sidebar{
-width:260px;
-background:#111827;
-padding:20px;
-display:flex;
-flex-direction:column;
-}
-
-.logo{
-font-size:24px;
-font-weight:bold;
-margin-bottom:25px;
-color:#38bdf8;
-}
-
-.new-chat{
-background:#2563eb;
-padding:12px;
-border-radius:10px;
-text-align:center;
-cursor:pointer;
-margin-bottom:20px;
-transition:.3s;
-}
-
-.new-chat:hover{
-background:#1d4ed8;
-}
-
-.history{
-flex:1;
-overflow-y:auto;
-}
-
-.history-item{
-padding:10px;
-margin-bottom:10px;
-background:#1e293b;
-border-radius:8px;
-cursor:pointer;
-}
-
-.main{
-flex:1;
-display:flex;
-flex-direction:column;
-}
-
-.header{
-padding:18px;
-background:#111827;
-font-size:22px;
-text-align:center;
-font-weight:bold;
-}
-
-.chat-box{
-flex:1;
-padding:25px;
-overflow-y:auto;
-}
-
-.message{
-max-width:75%;
-padding:15px;
-border-radius:12px;
-margin-bottom:18px;
-line-height:1.5;
-word-wrap:break-word;
-}
-
-.user{
-background:#2563eb;
-margin-left:auto;
-}
-
-.bot{
-background:#334155;
-margin-right:auto;
-}
-
-.input-area{
-display:flex;
-padding:20px;
-background:#111827;
-gap:10px;
-}
-
-.input-area input{
-flex:1;
-padding:15px;
-border:none;
-border-radius:10px;
-background:#1e293b;
-color:white;
-font-size:16px;
-}
-
-.input-area button{
-padding:15px 25px;
-border:none;
-border-radius:10px;
-background:#2563eb;
-color:white;
-cursor:pointer;
-font-size:16px;
-transition:.3s;
-}
-
-.input-area button:hover{
-background:#1d4ed8;
-}
-
-.typing{
-display:none;
-color:#94a3b8;
-margin-bottom:15px;
-font-style:italic;
-}
-
-</style>
 </head>
 
 <body>
 
+<div class="chat-container">
+
+<!-- Sidebar -->
+
 <div class="sidebar">
 
 <div class="logo">
+
 🤖 AI Agent
+
 </div>
 
-<div class="new-chat" onclick="location.reload()">
+<button id="newChat">
+
 ➕ New Chat
-</div>
+
+</button>
 
 <div class="history">
 
-<div class="history-item">
-New Conversation
-</div>
+<div class="history-title">
+
+Recent Chats
 
 </div>
 
-</div>
+<ul id="historyList">
 
-<div class="main">
+<li>Welcome Chat</li>
 
-<div class="header">
-
-AI Agent Studio
+</ul>
 
 </div>
 
-<div id="chatBox" class="chat-box">
+<div class="bottom">
 
-<div class="message bot">
+<a href="/">🏠 Home</a>
 
-👋 Hello! I am your AI Assistant.
-How can I help you today?
+<a href="/dashboard">📊 Dashboard</a>
 
-</div>
+<a href="/about">ℹ About</a>
 
-<div class="typing" id="typing">
-
-AI is typing...
+<a href="/contact">📞 Contact</a>
 
 </div>
 
 </div>
 
-<div class="input-area">
+<!-- Main Chat -->
 
-<input
-id="message"
-type="text"
-placeholder="Type your message...">
+<div class="main-chat">
 
-<button onclick="sendMessage()">
+<div class="topbar">
 
-Send
+<h2>
+
+Google Gemini AI
+
+</h2>
+
+<div>
+
+<button id="themeBtn">
+
+🌙
 
 </button>
 
 </div>
 
 </div>
-  
+
+<div id="messages" class="messages">
+
+<div class="bot-message">
+
+👋 Hello!
+
+I am your AI Assistant.
+
+Ask me anything.
+
+</div>
+
+</div>
+
+<div class="typing" id="typing">
+
+🤖 AI is typing...
+
+</div>
+
+<div class="input-box">
+
+<input
+type="text"
+id="userInput"
+placeholder="Type your message...">
+
+<button id="sendBtn">
+
+<i class="fa-solid fa-paper-plane"></i>
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<script src="{{ url_for('static',filename='script.js') }}"></script>
 <script>
 
-const chatBox = document.getElementById("chatBox");
+const input = document.getElementById("userInput");
+const sendBtn = document.getElementById("sendBtn");
+const messages = document.getElementById("messages");
+const typing = document.getElementById("typing");
+const historyList = document.getElementById("historyList");
+
+typing.style.display = "none";
+
+// Add Message
+function addMessage(text, type){
+
+    const div = document.createElement("div");
+
+    div.className = type + "-message";
+
+    div.innerHTML = text.replace(/\n/g,"<br>");
+
+    messages.appendChild(div);
+
+    messages.scrollTop = messages.scrollHeight;
+
+}
+
+// Save History
+function saveHistory(question){
+
+    const li = document.createElement("li");
+
+    li.innerText = question.substring(0,35);
+
+    historyList.prepend(li);
+
+}
+
+// Send Message
 
 async function sendMessage(){
-
-    const input = document.getElementById("message");
 
     const text = input.value.trim();
 
     if(text=="") return;
 
-    // User Message
+    addMessage(text,"user");
 
-    chatBox.innerHTML += `
-    <div class="message user">
-    ${text}
-    </div>
-    `;
-
-    chatBox.scrollTop = chatBox.scrollHeight;
+    saveHistory(text);
 
     input.value="";
 
-    // Typing Animation
+    typing.style.display="block";
 
-    document.getElementById("typing").style.display="block";
+    messages.scrollTop = messages.scrollHeight;
 
     try{
 
-        const response = await fetch("/ask",{
+        const res = await fetch("/ask",{
 
             method:"POST",
 
             headers:{
+
                 "Content-Type":"application/json"
+
             },
 
             body:JSON.stringify({
+
                 message:text
+
             })
 
         });
 
-        const data = await response.json();
+        const data = await res.json();
 
-        document.getElementById("typing").style.display="none";
+        typing.style.display="none";
 
-        chatBox.innerHTML += `
-        <div class="message bot">
-        🤖 ${data.reply}
-        </div>
-        `;
-
-        chatBox.scrollTop = chatBox.scrollHeight;
+        addMessage("🤖 "+data.reply,"bot");
 
     }
 
-    catch(error){
+    catch(err){
 
-        document.getElementById("typing").style.display="none";
+        typing.style.display="none";
 
-        chatBox.innerHTML += `
-        <div class="message bot">
-        ❌ Error connecting to AI server.
-        </div>
-        `;
+        addMessage("❌ Unable to connect with AI.","bot");
 
     }
 
 }
 
-document.getElementById("message").addEventListener("keypress",function(e){
+sendBtn.onclick = sendMessage;
+
+input.addEventListener("keypress",function(e){
 
     if(e.key==="Enter"){
-
-        e.preventDefault();
 
         sendMessage();
 
@@ -295,98 +235,174 @@ document.getElementById("message").addEventListener("keypress",function(e){
 
 });
 
-// Auto Scroll
+// New Chat
 
-setInterval(function(){
+document.getElementById("newChat").onclick=function(){
 
-    chatBox.scrollTop=chatBox.scrollHeight;
+messages.innerHTML=`
 
-},500);
+<div class="bot-message">
 
-</script>
-  <div style="padding:15px;background:#111827;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;">
+👋 Hello!
 
-<button onclick="clearChat()">
-🗑 Clear Chat
-</button>
+I am your AI Assistant.
 
-<button onclick="copyLastResponse()">
-📋 Copy Last Reply
-</button>
-
-<button onclick="startVoice()">
-🎤 Voice
-</button>
-
-</div>
-
-<script>
-
-function clearChat(){
-
-chatBox.innerHTML=`
-
-<div class="message bot">
-
-👋 Hello! I am your AI Assistant.
 How can I help you today?
-
-</div>
-
-<div class="typing" id="typing">
-
-AI is typing...
 
 </div>
 
 `;
 
-}
-
-function copyLastResponse(){
-
-let bots=document.querySelectorAll(".bot");
-
-if(bots.length>0){
-
-let text=bots[bots.length-1].innerText;
-
-navigator.clipboard.writeText(text);
-
-alert("AI reply copied!");
+historyList.innerHTML="<li>New Chat</li>";
 
 }
 
+// Theme Toggle
+
+let dark=true;
+
+document.getElementById("themeBtn").onclick=function(){
+
+if(dark){
+
+document.body.style.background="#ffffff";
+document.body.style.color="#111";
+
+this.innerHTML="☀️";
+
+}else{
+
+document.body.style.background="#050816";
+document.body.style.color="#ffffff";
+
+this.innerHTML="🌙";
+
 }
 
-function startVoice(){
-
-if(!('webkitSpeechRecognition' in window)){
-
-alert("Voice recognition is not supported in this browser.");
-
-return;
+dark=!dark;
 
 }
 
-let recognition=new webkitSpeechRecognition();
+</script>
+<script>
 
-recognition.lang="en-US";
+// =============================
+// Voice Input
+// =============================
 
-recognition.start();
+const SpeechRecognition =
+window.SpeechRecognition || window.webkitSpeechRecognition;
 
-recognition.onresult=function(event){
+if(SpeechRecognition){
 
-document.getElementById("message").value=
-event.results[0][0].transcript;
+const recognition = new SpeechRecognition();
+
+recognition.lang = "en-US";
+
+recognition.onresult = function(event){
+
+input.value = event.results[0][0].transcript;
 
 sendMessage();
 
 };
 
+const voiceBtn = document.createElement("button");
+
+voiceBtn.innerHTML = "🎤";
+
+voiceBtn.id = "voiceBtn";
+
+voiceBtn.style.marginLeft = "10px";
+
+document.querySelector(".input-box").appendChild(voiceBtn);
+
+voiceBtn.onclick = ()=>{
+
+recognition.start();
+
+};
+
 }
+
+// =============================
+// Clear Chat
+// =============================
+
+const clearBtn = document.createElement("button");
+
+clearBtn.innerHTML = "🗑";
+
+clearBtn.id = "clearBtn";
+
+clearBtn.style.marginLeft = "10px";
+
+document.querySelector(".topbar div").appendChild(clearBtn);
+
+clearBtn.onclick = ()=>{
+
+messages.innerHTML = `
+
+<div class="bot-message">
+
+👋 Hello!
+
+I am your AI Assistant.
+
+Ask me anything.
+
+</div>
+
+`;
+
+historyList.innerHTML = "<li>New Chat</li>";
+
+};
+
+// =============================
+// Copy AI Reply
+// =============================
+
+messages.addEventListener("dblclick",function(e){
+
+if(e.target.classList.contains("bot-message")){
+
+navigator.clipboard.writeText(e.target.innerText);
+
+alert("✅ AI reply copied.");
+
+}
+
+});
+
+// =============================
+// Auto Focus
+// =============================
+
+window.onload = ()=>{
+
+input.focus();
+
+};
+
+// =============================
+// Auto Scroll
+// =============================
+
+const observer = new MutationObserver(()=>{
+
+messages.scrollTop = messages.scrollHeight;
+
+});
+
+observer.observe(messages,{
+
+childList:true
+
+});
 
 </script>
 
 </body>
+
 </html>
