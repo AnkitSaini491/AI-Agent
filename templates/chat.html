@@ -210,3 +210,97 @@ Send
 </div>
 
 </div>
+  
+<script>
+
+const chatBox = document.getElementById("chatBox");
+
+async function sendMessage(){
+
+    const input = document.getElementById("message");
+
+    const text = input.value.trim();
+
+    if(text=="") return;
+
+    // User Message
+
+    chatBox.innerHTML += `
+    <div class="message user">
+    ${text}
+    </div>
+    `;
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    input.value="";
+
+    // Typing Animation
+
+    document.getElementById("typing").style.display="block";
+
+    try{
+
+        const response = await fetch("/ask",{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+                message:text
+            })
+
+        });
+
+        const data = await response.json();
+
+        document.getElementById("typing").style.display="none";
+
+        chatBox.innerHTML += `
+        <div class="message bot">
+        🤖 ${data.reply}
+        </div>
+        `;
+
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+    }
+
+    catch(error){
+
+        document.getElementById("typing").style.display="none";
+
+        chatBox.innerHTML += `
+        <div class="message bot">
+        ❌ Error connecting to AI server.
+        </div>
+        `;
+
+    }
+
+}
+
+document.getElementById("message").addEventListener("keypress",function(e){
+
+    if(e.key==="Enter"){
+
+        e.preventDefault();
+
+        sendMessage();
+
+    }
+
+});
+
+// Auto Scroll
+
+setInterval(function(){
+
+    chatBox.scrollTop=chatBox.scrollHeight;
+
+},500);
+
+</script>
