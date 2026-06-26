@@ -1,14 +1,1 @@
-AI-Agent
-│
-├── app.py
-├── templates
-│   ├── index.html
-│   ├── chat.html
-│   ├── about.html
-│   ├── contact.html
-│   └── dashboard.html
-│
-└── static
-    ├── style.css
-    ├── script.js
-    └── logo.png
+
