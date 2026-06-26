@@ -1,52 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>AI Chat</title>
+<title>AI Agent Studio</title>
 
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
 <style>
 
-.chat-container{
-width:90%;
-max-width:900px;
-margin:40px auto;
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#0f172a;
+color:white;
+display:flex;
+height:100vh;
+overflow:hidden;
+}
+
+.sidebar{
+width:260px;
+background:#111827;
+padding:20px;
+display:flex;
+flex-direction:column;
+}
+
+.logo{
+font-size:24px;
+font-weight:bold;
+margin-bottom:25px;
+color:#38bdf8;
+}
+
+.new-chat{
+background:#2563eb;
+padding:12px;
+border-radius:10px;
+text-align:center;
+cursor:pointer;
+margin-bottom:20px;
+transition:.3s;
+}
+
+.new-chat:hover{
+background:#1d4ed8;
+}
+
+.history{
+flex:1;
+overflow-y:auto;
+}
+
+.history-item{
+padding:10px;
+margin-bottom:10px;
 background:#1e293b;
-padding:30px;
-border-radius:15px;
-box-shadow:0 0 20px rgba(0,0,0,.5);
+border-radius:8px;
+cursor:pointer;
+}
+
+.main{
+flex:1;
+display:flex;
+flex-direction:column;
+}
+
+.header{
+padding:18px;
+background:#111827;
+font-size:22px;
+text-align:center;
+font-weight:bold;
 }
 
 .chat-box{
-height:400px;
+flex:1;
+padding:25px;
 overflow-y:auto;
-background:#0f172a;
-padding:20px;
-border-radius:10px;
-margin-bottom:20px;
 }
 
 .message{
-padding:12px;
-margin:10px 0;
-border-radius:10px;
+max-width:75%;
+padding:15px;
+border-radius:12px;
+margin-bottom:18px;
+line-height:1.5;
+word-wrap:break-word;
 }
 
 .user{
 background:#2563eb;
-text-align:right;
+margin-left:auto;
 }
 
 .bot{
 background:#334155;
+margin-right:auto;
 }
 
 .input-area{
 display:flex;
+padding:20px;
+background:#111827;
 gap:10px;
 }
 
@@ -55,49 +117,79 @@ flex:1;
 padding:15px;
 border:none;
 border-radius:10px;
+background:#1e293b;
+color:white;
 font-size:16px;
 }
 
 .input-area button{
 padding:15px 25px;
-background:#2563eb;
-color:white;
 border:none;
 border-radius:10px;
+background:#2563eb;
+color:white;
 cursor:pointer;
+font-size:16px;
+transition:.3s;
 }
 
 .input-area button:hover{
 background:#1d4ed8;
 }
 
-</style>
+.typing{
+display:none;
+color:#94a3b8;
+margin-bottom:15px;
+font-style:italic;
+}
 
+</style>
 </head>
 
 <body>
 
-<nav>
+<div class="sidebar">
 
-<div class="logo">🤖 AI Agent Studio</div>
+<div class="logo">
+🤖 AI Agent
+</div>
 
-<ul>
-<li><a href="/">Home</a></li>
-<li><a href="/dashboard">Dashboard</a></li>
-<li><a href="/about">About</a></li>
-<li><a href="/contact">Contact</a></li>
-</ul>
+<div class="new-chat" onclick="location.reload()">
+➕ New Chat
+</div>
 
-</nav>
+<div class="history">
 
-<div class="chat-container">
+<div class="history-item">
+New Conversation
+</div>
 
-<h1 align="center">🤖 AI Chat Assistant</h1>
+</div>
 
-<div class="chat-box" id="chatBox">
+</div>
+
+<div class="main">
+
+<div class="header">
+
+AI Agent Studio
+
+</div>
+
+<div id="chatBox" class="chat-box">
 
 <div class="message bot">
-👋 Hello! I am AI Agent Studio. Ask me anything.
+
+👋 Hello! I am your AI Assistant.
+How can I help you today?
+
+</div>
+
+<div class="typing" id="typing">
+
+AI is typing...
+
 </div>
 
 </div>
@@ -105,52 +197,16 @@ background:#1d4ed8;
 <div class="input-area">
 
 <input
+id="message"
 type="text"
-id="msg"
 placeholder="Type your message...">
 
 <button onclick="sendMessage()">
+
 Send
+
 </button>
 
 </div>
 
 </div>
-
-<script>
-
-function sendMessage(){
-
-let input=document.getElementById("msg");
-
-let text=input.value.trim();
-
-if(text=="") return;
-
-let box=document.getElementById("chatBox");
-
-box.innerHTML+=`
-<div class="message user">
-${text}
-</div>`;
-
-setTimeout(function(){
-
-box.innerHTML+=`
-<div class="message bot">
-🤖 You said: ${text}
-</div>`;
-
-box.scrollTop=box.scrollHeight;
-
-},700);
-
-input.value="";
-
-}
-
-</script>
-
-</body>
-
-</html>
