@@ -1,408 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini AI Clone</title>
 
-<meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-
-<title>AI Agent Studio</title>
-
-<link rel="stylesheet"
-href="{{ url_for('static',filename='style.css') }}">
-
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 
 <body>
 
 <div class="chat-container">
 
-<!-- Sidebar -->
+    <!-- Sidebar -->
 
-<div class="sidebar">
+    <aside class="sidebar">
 
-<div class="logo">
+        <div class="logo">
 
-🤖 AI Agent
+            🤖 Gemini AI
 
-</div>
+        </div>
 
-<button id="newChat">
+        <button id="newChat">
 
-➕ New Chat
+            <i class="fa-solid fa-plus"></i>
 
-</button>
+            New Chat
 
-<div class="history">
+        </button>
 
-<div class="history-title">
+        <div class="history">
 
-Recent Chats
+            <h3>Recent Chats</h3>
 
-</div>
+            <ul id="historyList"></ul>
 
-<ul id="historyList">
+        </div>
 
-<li>Welcome Chat</li>
+    </aside>
 
-</ul>
+    <!-- Main Chat -->
 
-</div>
+    <main class="main-chat">
 
-<div class="bottom">
+        <header class="topbar">
 
-<a href="/">🏠 Home</a>
+            <h2>Gemini AI Assistant</h2>
 
-<a href="/dashboard">📊 Dashboard</a>
+            <button id="themeBtn">
 
-<a href="/about">ℹ About</a>
+                🌙
 
-<a href="/contact">📞 Contact</a>
+            </button>
 
-</div>
+        </header>
 
-</div>
+        <section id="messages" class="messages">
 
-<!-- Main Chat -->
+            <div class="bot-message">
 
-<div class="main-chat">
+                👋 Hello! I'm Gemini AI.
 
-<div class="topbar">
+                Ask me anything.
 
-<h2>
+            </div>
 
-Google Gemini AI
+        </section>
 
-</h2>
+        <div id="typing" class="typing">
 
-<div>
+            Gemini is thinking...
 
-<button id="themeBtn">
+        </div>
 
-🌙
+        <div class="input-box">
 
-</button>
+            <input
+                type="text"
+                id="userInput"
+                placeholder="Message Gemini...">
 
-</div>
+            <button id="sendBtn">
 
-</div>
+                <i class="fa-solid fa-paper-plane"></i>
 
-<div id="messages" class="messages">
+            </button>
 
-<div class="bot-message">
+        </div>
 
-👋 Hello!
-
-I am your AI Assistant.
-
-Ask me anything.
-
-</div>
+    </main>
 
 </div>
-
-<div class="typing" id="typing">
-
-🤖 AI is typing...
-
-</div>
-
-<div class="input-box">
-
-<input
-type="text"
-id="userInput"
-placeholder="Type your message...">
-
-<button id="sendBtn">
-
-<i class="fa-solid fa-paper-plane"></i>
-
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-<script src="{{ url_for('static',filename='script.js') }}"></script>
-<script>
-
-const input = document.getElementById("userInput");
-const sendBtn = document.getElementById("sendBtn");
-const messages = document.getElementById("messages");
-const typing = document.getElementById("typing");
-const historyList = document.getElementById("historyList");
-
-typing.style.display = "none";
-
-// Add Message
-function addMessage(text, type){
-
-    const div = document.createElement("div");
-
-    div.className = type + "-message";
-
-    div.innerHTML = text.replace(/\n/g,"<br>");
-
-    messages.appendChild(div);
-
-    messages.scrollTop = messages.scrollHeight;
-
-}
-
-// Save History
-function saveHistory(question){
-
-    const li = document.createElement("li");
-
-    li.innerText = question.substring(0,35);
-
-    historyList.prepend(li);
-
-}
-
-// Send Message
-
-async function sendMessage(){
-
-    const text = input.value.trim();
-
-    if(text=="") return;
-
-    addMessage(text,"user");
-
-    saveHistory(text);
-
-    input.value="";
-
-    typing.style.display="block";
-
-    messages.scrollTop = messages.scrollHeight;
-
-    try{
-
-        const res = await fetch("/ask",{
-
-            method:"POST",
-
-            headers:{
-
-                "Content-Type":"application/json"
-
-            },
-
-            body:JSON.stringify({
-
-                message:text
-
-            })
-
-        });
-
-        const data = await res.json();
-
-        typing.style.display="none";
-
-        addMessage("🤖 "+data.reply,"bot");
-
-    }
-
-    catch(err){
-
-        typing.style.display="none";
-
-        addMessage("❌ Unable to connect with AI.","bot");
-
-    }
-
-}
-
-sendBtn.onclick = sendMessage;
-
-input.addEventListener("keypress",function(e){
-
-    if(e.key==="Enter"){
-
-        sendMessage();
-
-    }
-
-});
-
-// New Chat
-
-document.getElementById("newChat").onclick=function(){
-
-messages.innerHTML=`
-
-<div class="bot-message">
-
-👋 Hello!
-
-I am your AI Assistant.
-
-How can I help you today?
-
-</div>
-
-`;
-
-historyList.innerHTML="<li>New Chat</li>";
-
-}
-
-// Theme Toggle
-
-let dark=true;
-
-document.getElementById("themeBtn").onclick=function(){
-
-if(dark){
-
-document.body.style.background="#ffffff";
-document.body.style.color="#111";
-
-this.innerHTML="☀️";
-
-}else{
-
-document.body.style.background="#050816";
-document.body.style.color="#ffffff";
-
-this.innerHTML="🌙";
-
-}
-
-dark=!dark;
-
-}
-
-</script>
-<script>
-
-// =============================
-// Voice Input
-// =============================
-
-const SpeechRecognition =
-window.SpeechRecognition || window.webkitSpeechRecognition;
-
-if(SpeechRecognition){
-
-const recognition = new SpeechRecognition();
-
-recognition.lang = "en-US";
-
-recognition.onresult = function(event){
-
-input.value = event.results[0][0].transcript;
-
-sendMessage();
-
-};
-
-const voiceBtn = document.createElement("button");
-
-voiceBtn.innerHTML = "🎤";
-
-voiceBtn.id = "voiceBtn";
-
-voiceBtn.style.marginLeft = "10px";
-
-document.querySelector(".input-box").appendChild(voiceBtn);
-
-voiceBtn.onclick = ()=>{
-
-recognition.start();
-
-};
-
-}
-
-// =============================
-// Clear Chat
-// =============================
-
-const clearBtn = document.createElement("button");
-
-clearBtn.innerHTML = "🗑";
-
-clearBtn.id = "clearBtn";
-
-clearBtn.style.marginLeft = "10px";
-
-document.querySelector(".topbar div").appendChild(clearBtn);
-
-clearBtn.onclick = ()=>{
-
-messages.innerHTML = `
-
-<div class="bot-message">
-
-👋 Hello!
-
-I am your AI Assistant.
-
-Ask me anything.
-
-</div>
-
-`;
-
-historyList.innerHTML = "<li>New Chat</li>";
-
-};
-
-// =============================
-// Copy AI Reply
-// =============================
-
-messages.addEventListener("dblclick",function(e){
-
-if(e.target.classList.contains("bot-message")){
-
-navigator.clipboard.writeText(e.target.innerText);
-
-alert("✅ AI reply copied.");
-
-}
-
-});
-
-// =============================
-// Auto Focus
-// =============================
-
-window.onload = ()=>{
-
-input.focus();
-
-};
-
-// =============================
-// Auto Scroll
-// =============================
-
-const observer = new MutationObserver(()=>{
-
-messages.scrollTop = messages.scrollHeight;
-
-});
-
-observer.observe(messages,{
-
-childList:true
-
-});
-
-</script>
-
-</body>
-
-</html>
