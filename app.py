@@ -1,6 +1,15 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, jsonify
+import google.generativeai as genai
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
+
+# Gemini API
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+model = genai.GenerativeModel("gemini-2.5-flash")
 
 @app.route("/")
 def home():
@@ -21,6 +30,26 @@ def about():
 @app.route("/contact")
 def contact():
     return render_template("contact.html")
+
+
+# Real AI Chat API
+@app.route("/ask", methods=["POST"])
+def ask():
+
+    data = request.get_json()
+
+    prompt = data.get("message", "")
+
+    if not prompt:
+        return jsonify({"reply": "Please enter a message."})
+
+    try:
+        response = model.generate_content(prompt)
+        return jsonify({"reply": response.text})
+
+    except Exception as e:
+        return jsonify({"reply": str(e)})
+
 
 if __name__ == "__main__":
     app.run(debug=True)
