@@ -5,17 +5,22 @@ import sqlite3
 import os
 from datetime import datetime
 
+# ==========================
+# Load Environment
+# ==========================
+
 load_dotenv()
 
 app = Flask(__name__)
-
-app.secret_key = "CHANGE_THIS_TO_A_RANDOM_SECRET_KEY"
+app.secret_key = "change_this_secret_key"
 
 # ==========================
 # Gemini Setup
 # ==========================
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+genai.configure(
+    api_key=os.getenv("GEMINI_API_KEY")
+)
 
 model = genai.GenerativeModel("gemini-2.5-flash")
 
@@ -26,7 +31,6 @@ model = genai.GenerativeModel("gemini-2.5-flash")
 def init_db():
 
     conn = sqlite3.connect("database.db")
-
     c = conn.cursor()
 
     c.execute("""
@@ -39,11 +43,9 @@ def init_db():
     """)
 
     conn.commit()
-
     conn.close()
 
 init_db()
-
 # ==========================
 # Routes
 # ==========================
@@ -72,106 +74,111 @@ def about():
 def contact():
     return render_template("contact.html")
 
+
 # ==========================
-# Ask AI
+# Ask Gemini
 # ==========================
 
 @app.route("/ask", methods=["POST"])
-
 def ask():
 
-    data = request.get_json()
-
-    question = data.get("message", "").strip()
-
-    if not question:
-
-        return jsonify({
-            "reply":"Please type something."
-        })
-
     try:
+
+        data = request.get_json()
+
+        question = data.get("message", "").strip()
+
+        if question == "":
+            return jsonify({
+                "reply": "Please type a message."
+            })
 
         response = model.generate_content(question)
 
         answer = response.text
 
         conn = sqlite3.connect("database.db")
-
         c = conn.cursor()
 
         c.execute(
-
             "INSERT INTO chats(question,answer,created_at) VALUES(?,?,?)",
-
-            (question,answer,str(datetime.now()))
-
+            (
+                question,
+                answer,
+                str(datetime.now())
+            )
         )
 
         conn.commit()
-
         conn.close()
 
         return jsonify({
-
-            "reply":answer
-
+            "reply": answer
         })
 
     except Exception as e:
 
         return jsonify({
-
-            "reply":str(e)
-
+            "reply": f"Error: {str(e)}"
         })
-
-# ==========================
-# Chat History
+        # ==========================
+# Chat History API
 # ==========================
 
 @app.route("/history")
-
 def history():
 
-    conn=sqlite3.connect("database.db")
-
-    c=conn.cursor()
+    conn = sqlite3.connect("database.db")
+    c = conn.cursor()
 
     c.execute("""
-
-    SELECT question,answer,created_at
-
-    FROM chats
-
-    ORDER BY id DESC
-
-    LIMIT 30
-
+        SELECT question, answer, created_at
+        FROM chats
+        ORDER BY id DESC
+        LIMIT 30
     """)
 
-    data=c.fetchall()
+    rows = c.fetchall()
 
     conn.close()
 
-    history=[]
+    history = []
 
-    for row in data:
+    for row in rows:
 
         history.append({
 
-            "question":row[0],
+            "question": row[0],
 
-            "answer":row[1],
+            "answer": row[1],
 
-            "time":row[2]
+            "time": row[2]
 
         })
 
     return jsonify(history)
 
+
+# ==========================
+# Error Handler
 # ==========================
 
-if __name__=="__main__":
+@app.errorhandler(404)
+def not_found(error):
 
-    app.run(debug=True)
+    return render_template("index.html"), 404
+
+
+# ==========================
+# Main
+# ==========================
+
+if __name__ == "__main__":
+
+    app.run(
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 5000)),
+        debug=True
+    )
+    
+        
